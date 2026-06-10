@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор ИМТ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .result-item {
+            margin: 12px 0;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .bmi-value {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .comment {
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .recommendation {
+            font-size: 15px;
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .error-show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Прогресс-бар для визуализации ИМТ */
+        .bmi-scale-container {
+            margin: 20px 0;
+            padding: 10px;
+        }
+
+        .scale-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .bmi-scale {
+            position: relative;
+            height: 30px;
+            background: linear-gradient(to right, 
+                #ff6b6b 0%,     /* выраженный дефицит - красный */
+                #ffa500 15%,    /* недостаточная масса - оранжевый */
+                #4caf50 30%,    /* норма - зелёный */
+                #ffa500 55%,    /* избыток - оранжевый */
+                #ff6b6b 70%,    /* ожирение I - красный */
+                #ff4444 85%,    /* ожирение II - красный */
+                #8b0000 100%    /* ожирение III - тёмно-красный */
+            );
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scale-marker {
+            position: absolute;
+            width: 12px;
+            height: 40px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            top: -5px;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: left 0.3s ease;
+            z-index: 2;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .scale-labels span {
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Цветовые индикаторы для категорий */
+        .result-card.bg-underweight-severe {
+            background: linear-gradient(135deg, #ff6b6b20, #ff6b6b10);
+            border-left: 4px solid #ff6b6b;
+        }
+        .result-card.bg-underweight {
+            background: linear-gradient(135deg, #ffa50020, #ffa50010);
+            border-left: 4px solid #ffa500;
+        }
+        .result-card.bg-normal {
+            background: linear-gradient(135deg, #4caf5020, #4caf5010);
+            border-left: 4px solid #4caf50;
+        }
+        .result-card.bg-overweight {
+            background: linear-gradient(135deg, #ffa50020, #ffa50010);
+            border-left: 4px solid #ffa500;
+        }
+        .result-card.bg-obesity1 {
+            background: linear-gradient(135deg, #ff6b6b20, #ff6b6b10);
+            border-left: 4px solid #ff6b6b;
+        }
+        .result-card.bg-obesity2 {
+            background: linear-gradient(135deg, #ff444420, #ff444410);
+            border-left: 4px solid #ff4444;
+        }
+        .result-card.bg-obesity3 {
+            background: linear-gradient(135deg, #8b000020, #8b000010);
+            border-left: 4px solid #8b0000;
+        }
+
+        .info-note {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>⚖️ Калькулятор ИМТ</h2>
+            <p>Индекс массы тела - показатель соотношения роста и веса</p>
+        </div>
+
+        <div class="content">
+            <div class="input-group">
+                <label>📏 Рост (см)</label>
+                <input type="number" id="height" placeholder="от 50 до 250 см" step="any">
+                <div class="info-note" style="text-align: left; margin-top: 5px;">Допустимый диапазон: 50-250 см</div>
+            </div>
+
+            <div class="input-group">
+                <label>⚖️ Вес (кг)</label>
+                <input type="number" id="weight" placeholder="от 10 до 300 кг" step="any">
+                <div class="info-note" style="text-align: left; margin-top: 5px;">Допустимый диапазон: 10-300 кг</div>
+            </div>
+
+            <button id="calculateBtn">Рассчитать ИМТ</button>
+
+            <div id="errorBox" class="error-message"></div>
+
+            <div id="resultCard" class="result-card" style="display: none;">
+                <div class="bmi-value" id="bmiValue">—</div>
+                <div class="comment" id="comment">—</div>
+                <div class="recommendation" id="recommendation">—</div>
+                
+                <!-- Визуальная шкала ИМТ -->
+                <div class="bmi-scale-container">
+                    <div class="scale-title">📊 Положение вашего ИМТ на шкале</div>
+                    <div class="bmi-scale" id="bmiScale">
+                        <div class="scale-marker" id="scaleMarker"></div>
+                    </div>
+                    <div class="scale-labels">
+                        <span>16</span>
+                        <span>18.5</span>
+                        <span>25</span>
+                        <span>30</span>
+                        <span>35</span>
+                        <span>40</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM элементы
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const errorBox = document.getElementById('errorBox');
+        const resultCard = document.getElementById('resultCard');
+        const bmiValueSpan = document.getElementById('bmiValue');
+        const commentSpan = document.getElementById('comment');
+        const recommendationSpan = document.getElementById('recommendation');
+        const scaleMarker = document.getElementById('scaleMarker');
+
+        // Функция для отображения ошибки
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.classList.add('error-show');
+            resultCard.style.display = 'none';
+            
+            setTimeout(() => {
+                errorBox.classList.remove('error-show');
+            }, 4000);
+        }
+
+        function hideError() {
+            errorBox.classList.remove('error-show');
+        }
+
+        // Функция для получения категории ИМТ и цвета
+        function getBMICategory(bmi) {
+            if (bmi < 16) {
+                return {
+                    comment: "Выраженный дефицит массы тела",
+                    color: "red",
+                    bgClass: "bg-underweight-severe",
+                    recommendation: "Рекомендуется сбалансированное питание с повышенной калорийностью. Обратитесь к врачу-диетологу."
+                };
+            } else if (bmi < 18.5) {
+                return {
+                    comment: "Недостаточная масса тела",
+                    color: "orange",
+                    bgClass: "bg-underweight",
+                    recommendation: "Рекомендуется сбалансированное питание с повышенной калорийностью"
+                };
+            } else if (bmi < 25) {
+                return {
+                    comment: "Нормальная масса тела",
+                    color: "green",
+                    bgClass: "bg-normal",
+                    recommendation: "Отличный результат! Поддерживайте здоровый образ жизни"
+                };
+            } else if (bmi < 30) {
+                return {
+                    comment: "Избыточная масса тела (предожирение)",
+                    color: "orange",
+                    bgClass: "bg-overweight",
+                    recommendation: "Рекомендуется увеличить физическую активность и скорректировать питание"
+                };
+            } else if (bmi < 35) {
+                return {
+                    comment: "Ожирение I степени",
+                    color: "red",
+                    bgClass: "bg-obesity1",
+                    recommendation: "Рекомендуется консультация врача-диетолога и увеличение физической активности"
+                };
+            } else if (bmi < 40) {
+                return {
+                    comment: "Ожирение II степени",
+                    color: "red",
+                    bgClass: "bg-obesity2",
+                    recommendation: "Рекомендуется консультация врача-диетолога и эндокринолога"
+                };
+            } else {
+                return {
+                    comment: "Ожирение III степени",
+                    color: "darkred",
+                    bgClass: "bg-obesity3",
+                    recommendation: "Срочная рекомендация: обратитесь к врачу-диетологу и эндокринологу для разработки программы снижения веса"
+                };
+            }
+        }
+
+        // Функция для обновления позиции маркера на шкале
+        function updateScaleMarker(bmi) {
+            // Ограничиваем значение для отображения на шкале от 10 до 50
+            let displayBmi = Math.min(Math.max(bmi, 10), 50);
+            
+            // Вычисляем процентное положение на шкале (0% - 10, 100% - 50)
+            let percent = ((displayBmi - 10) / 40) * 100;
+            percent = Math.min(Math.max(percent, 0), 100);
+            
+            scaleMarker.style.left = percent + '%';
+            
+            // Добавляем небольшой эффект анимации
+            scaleMarker.style.transition = 'left 0.5s ease';
+        }
+
+        // Функция для применения цветового класса к карточке результата
+        function applyColorClass(bgClass) {
+            // Удаляем все существующие классы фона
+            const classes = ['bg-underweight-severe', 'bg-underweight', 'bg-normal', 
+                           'bg-overweight', 'bg-obesity1', 'bg-obesity2', 'bg-obesity3'];
+            classes.forEach(cls => {
+                resultCard.classList.remove(cls);
+            });
+            
+            // Добавляем новый класс
+            resultCard.classList.add(bgClass);
+        }
+
+        // Функция для валидации входных данных
+        function validateInputs(height, weight) {
+            // Проверка на пустые значения
+            if (height === '' || height === null) {
+                showError('❌ Пожалуйста, введите значение роста!');
+                return false;
+            }
+            
+            if (weight === '' || weight === null) {
+                showError('❌ Пожалуйста, введите значение веса!');
+                return false;
+            }
+            
+            // Преобразуем в числа
+            const heightNum = parseFloat(height);
+            const weightNum = parseFloat(weight);
+            
+            // Проверка на NaN
+            if (isNaN(heightNum)) {
+                showError('❌ Рост должен быть числом!');
+                return false;
+            }
+            
+            if (isNaN(weightNum)) {
+                showError('❌ Вес должен быть числом!');
+                return false;
+            }
+            
+            // Проверка на положительные значения
+            if (heightNum <= 0) {
+                showError('❌ Рост не может быть меньше или равен 0 см!');
+                return false;
+            }
+            
+            if (weightNum <= 0) {
+                showError('❌ Вес не может быть меньше или равен 0 кг!');
+                return false;
+            }
+            
+            // Проверка диапазона роста
+            if (heightNum < 50) {
+                showError('❌ Рост не может быть меньше 50 см!');
+                return false;
+            }
+            
+            if (heightNum > 250) {
+                showError('❌ Рост не может быть больше 250 см!');
+                return false;
+            }
+            
+            // Проверка диапазона веса
+            if (weightNum < 10) {
+                showError('❌ Вес не может быть меньше 10 кг!');
+                return false;
+            }
+            
+            if (weightNum > 300) {
+                showError('❌ Вес не может быть больше 300 кг!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Функция расчёта ИМТ
+        function calculateBMI(weight, heightCm) {
+            const heightM = heightCm / 100;
+            const bmi = weight / (heightM * heightM);
+            return bmi;
+        }
+
+        // Основная функция обработки
+        function processCalculation() {
+            const height = heightInput.value;
+            const weight = weightInput.value;
+            
+            hideError();
+            
+            // Валидация
+            if (!validateInputs(height, weight)) {
+                resultCard.style.display = 'none';
+                return;
+            }
+            
+            // Преобразуем в числа
+            const heightNum = parseFloat(height);
+            const weightNum = parseFloat(weight);
+            
+            // Рассчитываем ИМТ
+            const bmi = calculateBMI(weightNum, heightNum);
+            const bmiRounded = bmi.toFixed(2);
+            
+            // Получаем категорию и рекомендации
+            const category = getBMICategory(bmi);
+            
+            // Обновляем отображение
+            bmiValueSpan.textContent = bmiRounded;
+            bmiValueSpan.style.color = category.color;
+            commentSpan.textContent = category.comment;
+            commentSpan.style.color = category.color;
+            recommendationSpan.textContent = category.recommendation;
+            
+            // Применяем цветовой класс фона
+            applyColorClass(category.bgClass);
+            
+            // Обновляем маркер на шкале
+            updateScaleMarker(bmi);
+            
+            // Показываем карточку результата с анимацией
+            resultCard.style.display = 'block';
+            resultCard.style.animation = 'fadeInUp 0.5s ease';
+            
+            // Добавляем анимацию для значений
+            bmiValueSpan.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                bmiValueSpan.style.transform = 'scale(1)';
+            }, 200);
+        }
+        
+        // Добавляем стили анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .result-card {
+                animation: fadeInUp 0.5s ease;
+            }
+            
+            .bmi-value {
+                transition: transform 0.2s ease;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Добавляем обработчики событий
+        calculateBtn.addEventListener('click', processCalculation);
+        
+        // Добавляем возможность расчёта по нажатию Enter
+        const inputs = [heightInput, weightInput];
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    processCalculation();
+                }
+            });
+        });
+        
+        // Очищаем ошибку при фокусе на полях
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                hideError();
+            });
+        });
+        
+        // Инициализация: показываем пример при загрузке
+        setTimeout(() => {
+            if (heightInput.value === '' && weightInput.value === '') {
+                heightInput.value = '175';
+                weightInput.value = '70';
+                processCalculation();
+            }
+        }, 100);
+    </script>
+</body>
+</html>

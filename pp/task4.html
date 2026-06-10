@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор чаевых</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        label i {
+            font-size: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 0.5;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            margin-left: 5px;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 25px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 5px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 15px;
+            text-align: center;
+            transition: all 0.2s;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .result-value small {
+            font-size: 14px;
+            font-weight: normal;
+            color: #888;
+        }
+
+        .result-card.per-person {
+            border-left-color: #ff6b6b;
+        }
+
+        .result-card.per-person .result-value {
+            color: #ff6b6b;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .error-show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .tip-preset {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .preset-btn {
+            flex: 1;
+            padding: 8px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: #333;
+            margin: 0;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: none;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>💰 Калькулятор чаевых</h2>
+            <p>Рассчитайте чаевые и разделите счёт на компанию</p>
+        </div>
+
+        <div class="content">
+            <div class="input-group">
+                <label>
+                    <span>🧾</span> Сумма счёта (₽)
+                </label>
+                <input type="number" id="billAmount" placeholder="Например: 2500" step="any" value="">
+                <div class="input-hint">Введите сумму счёта (не может быть отрицательной)</div>
+            </div>
+
+            <div class="input-group">
+                <label>
+                    <span>💝</span> Процент чаевых (%)
+                </label>
+                <input type="number" id="tipPercent" placeholder="От 0 до 50" step="any" value="">
+                <div class="tip-preset">
+                    <button type="button" class="preset-btn" data-tip="5">5%</button>
+                    <button type="button" class="preset-btn" data-tip="10">10%</button>
+                    <button type="button" class="preset-btn" data-tip="15">15%</button>
+                    <button type="button" class="preset-btn" data-tip="20">20%</button>
+                </div>
+                <div class="input-hint">Обычно чаевые составляют 5-20% от суммы счёта</div>
+            </div>
+
+            <div class="input-group">
+                <label>
+                    <span>👥</span> Количество человек
+                </label>
+                <input type="number" id="peopleCount" placeholder="По умолчанию: 1" value="1" step="1" min="1">
+                <div class="input-hint">Минимум 1 человек</div>
+            </div>
+
+            <button id="calculateBtn">✨ Рассчитать ✨</button>
+
+            <div id="errorBox" class="error-message"></div>
+
+            <div class="results" id="results">
+                <div class="result-card">
+                    <div class="result-label">💸 Сумма чаевых</div>
+                    <div class="result-value" id="tipAmount">0 ₽</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-label">💰 Общая сумма к оплате</div>
+                    <div class="result-value" id="totalAmount">0 ₽</div>
+                </div>
+                <div class="result-card per-person">
+                    <div class="result-label">👥 Сумма на каждого</div>
+                    <div class="result-value" id="perPersonAmount">0 ₽</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM элементы
+        const billInput = document.getElementById('billAmount');
+        const tipPercentInput = document.getElementById('tipPercent');
+        const peopleCountInput = document.getElementById('peopleCount');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const errorBox = document.getElementById('errorBox');
+        
+        // Элементы для отображения результатов
+        const tipAmountSpan = document.getElementById('tipAmount');
+        const totalAmountSpan = document.getElementById('totalAmount');
+        const perPersonAmountSpan = document.getElementById('perPersonAmount');
+
+        // Функция для отображения ошибки
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.classList.add('error-show');
+            
+            // Автоматически скрыть ошибку через 3 секунды
+            setTimeout(() => {
+                errorBox.classList.remove('error-show');
+            }, 3000);
+        }
+
+        // Функция для скрытия ошибки
+        function hideError() {
+            errorBox.classList.remove('error-show');
+        }
+
+        // Функция для проверки и валидации входных данных
+        function validateInputs(bill, tipPercent, peopleCount) {
+            // Проверка на пустые значения
+            if (bill === '' || bill === null) {
+                showError('❌ Пожалуйста, введите сумму счёта!');
+                return false;
+            }
+            
+            if (tipPercent === '' || tipPercent === null) {
+                showError('❌ Пожалуйста, введите процент чаевых!');
+                return false;
+            }
+            
+            if (peopleCount === '' || peopleCount === null) {
+                showError('❌ Пожалуйста, введите количество человек!');
+                return false;
+            }
+            
+            // Преобразуем в числа
+            const billNum = parseFloat(bill);
+            const tipPercentNum = parseFloat(tipPercent);
+            const peopleCountNum = parseInt(peopleCount);
+            
+            // Проверка на NaN
+            if (isNaN(billNum)) {
+                showError('❌ Сумма счёта должна быть числом!');
+                return false;
+            }
+            
+            if (isNaN(tipPercentNum)) {
+                showError('❌ Процент чаевых должен быть числом!');
+                return false;
+            }
+            
+            if (isNaN(peopleCountNum)) {
+                showError('❌ Количество человек должно быть целым числом!');
+                return false;
+            }
+            
+            // Проверка на отрицательные значения
+            if (billNum < 0) {
+                showError('❌ Сумма счёта не может быть отрицательной!');
+                return false;
+            }
+            
+            // Проверка процента чаевых
+            if (tipPercentNum < 0) {
+                showError('❌ Процент чаевых не может быть меньше 0!');
+                return false;
+            }
+            
+            if (tipPercentNum > 50) {
+                showError('❌ Процент чаевых не может быть больше 50%!');
+                return false;
+            }
+            
+            // Проверка количества человек
+            if (peopleCountNum < 1) {
+                showError('❌ Количество человек не может быть меньше 1!');
+                return false;
+            }
+            
+            // Дополнительная проверка на целое число для количества человек
+            if (!Number.isInteger(peopleCountNum)) {
+                showError('❌ Количество человек должно быть целым числом!');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Функция для расчёта суммы чаевых
+        function calculateTipAmount(bill, tipPercent) {
+            return bill * (tipPercent / 100);
+        }
+        
+        // Функция для расчёта общей суммы
+        function calculateTotalAmount(bill, tipAmount) {
+            return bill + tipAmount;
+        }
+        
+        // Функция для расчёта суммы на человека
+        function calculatePerPersonAmount(totalAmount, peopleCount) {
+            const perPerson = totalAmount / peopleCount;
+            // Если количество человек больше 1, округляем до двух знаков после запятой
+            if (peopleCount > 1) {
+                return Math.round(perPerson * 100) / 100;
+            }
+            return perPerson;
+        }
+        
+        // Функция для форматирования суммы с валютой
+        function formatCurrency(amount) {
+            // Округляем до двух знаков для красивого отображения
+            const roundedAmount = Math.round(amount * 100) / 100;
+            
+            // Форматируем с разделением тысяч
+            return new Intl.NumberFormat('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(roundedAmount) + ' ₽';
+        }
+        
+        // Функция для обновления интерфейса с результатами
+        function updateResults(tipAmount, totalAmount, perPersonAmount, peopleCount) {
+            tipAmountSpan.textContent = formatCurrency(tipAmount);
+            totalAmountSpan.textContent = formatCurrency(totalAmount);
+            
+            // Обновляем текст в зависимости от количества человек
+            const perPersonText = peopleCount > 1 
+                ? `${formatCurrency(perPersonAmount)} <small>(${peopleCount} человека)</small>`
+                : formatCurrency(perPersonAmount);
+            
+            perPersonAmountSpan.innerHTML = perPersonText;
+            
+            // Добавляем небольшую анимацию для результатов
+            const resultCards = document.querySelectorAll('.result-card');
+            resultCards.forEach(card => {
+                card.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 200);
+            });
+        }
+        
+        // Основная функция расчёта
+        function calculate() {
+            // Получаем значения из полей ввода
+            const bill = billInput.value;
+            const tipPercent = tipPercentInput.value;
+            const peopleCount = peopleCountInput.value;
+            
+            // Скрываем старую ошибку
+            hideError();
+            
+            // Валидация входных данных
+            if (!validateInputs(bill, tipPercent, peopleCount)) {
+                return;
+            }
+            
+            // Преобразуем в числа
+            const billNum = parseFloat(bill);
+            const tipPercentNum = parseFloat(tipPercent);
+            const peopleCountNum = parseInt(peopleCount);
+            
+            // Выполняем расчёты
+            const tipAmount = calculateTipAmount(billNum, tipPercentNum);
+            const totalAmount = calculateTotalAmount(billNum, tipAmount);
+            const perPersonAmount = calculatePerPersonAmount(totalAmount, peopleCountNum);
+            
+            // Обновляем интерфейс
+            updateResults(tipAmount, totalAmount, perPersonAmount, peopleCountNum);
+        }
+        
+        // Функция для установки предустановленного процента чаевых
+        function setPresetTip(percent) {
+            tipPercentInput.value = percent;
+            // Опционально: автоматически выполнить расчёт
+            calculate();
+        }
+        
+        // Добавляем обработчики событий
+        calculateBtn.addEventListener('click', calculate);
+        
+        // Добавляем возможность расчёта по нажатию Enter в любом поле
+        const inputs = [billInput, tipPercentInput, peopleCountInput];
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    calculate();
+                }
+            });
+        });
+        
+        // Добавляем обработчики для предустановленных кнопок
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        presetButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tipValue = parseInt(this.getAttribute('data-tip'));
+                setPresetTip(tipValue);
+            });
+        });
+        
+        // Очищаем ошибку при фокусе на любом поле
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                hideError();
+            });
+        });
+        
+        // Инициализация: показываем пример расчёта при загрузке страницы
+        // Но не показываем ошибки, просто дефолтные значения
+        setTimeout(() => {
+            if (billInput.value === '' && tipPercentInput.value === '' && peopleCountInput.value === '1') {
+                billInput.value = '1000';
+                tipPercentInput.value = '15';
+                calculate();
+            }
+        }, 100);
+    </script>
+</body>
+</html>

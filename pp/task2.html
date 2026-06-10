@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор скидки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .calculator {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76,175,80,0.3);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+            min-height: 60px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+        .info h4 {
+            margin: 0 0 5px 0;
+        }
+        .info p {
+            margin: 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>🧮 Калькулятор скидки</h2>
+        
+        <div class="input-group">
+            <label for="price">💰 Стоимость товара (руб.)</label>
+            <input type="number" id="price" placeholder="Введите стоимость товара" step="any">
+        </div>
+        
+        <div class="input-group">
+            <label for="age">🎂 Возраст покупателя (лет)</label>
+            <input type="number" id="age" placeholder="Введите возраст" step="1">
+        </div>
+        
+        <button id="calculateBtn">Рассчитать</button>
+        
+        <div id="result" class="result">
+            <!-- Результат будет отображаться здесь -->
+        </div>
+        
+        <div class="info">
+            <h4>📋 Правила скидки:</h4>
+            <p>• до 18 лет → скидка 10%</p>
+            <p>• от 60 лет и старше → скидка 20%</p>
+            <p>• 18-59 лет → скидка 0%</p>
+        </div>
+    </div>
+
+    <script>
+        // Функция для расчёта скидки в зависимости от возраста
+        function calculateDiscount(age) {
+            if (age < 18) {
+                return 10; // 10% скидка
+            } else if (age >= 60) {
+                return 20; // 20% скидка
+            } else {
+                return 0; // 0% скидка
+            }
+        }
+
+        // Функция для расчёта итоговой цены со скидкой
+        function calculateFinalPrice(price, discountPercent) {
+            return price - (price * discountPercent / 100);
+        }
+
+        // Функция для отображения результата
+        function displayResult(price, age, finalPrice, discountPercent) {
+            const resultDiv = document.getElementById('result');
+            
+            // Формируем сообщение в зависимости от наличия скидки
+            if (discountPercent > 0) {
+                resultDiv.innerHTML = `
+                    🎉 Итоговая цена: ${Math.round(finalPrice)} рублей<br>
+                    <span style="font-size: 14px; opacity: 0.8;">💰 Скидка ${discountPercent}% (было ${Math.round(price)} руб.)</span>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    💸 Итоговая цена: ${Math.round(finalPrice)} рублей<br>
+                    <span style="font-size: 14px; opacity: 0.8;">🏷️ Скидка не предоставлена</span>
+                `;
+            }
+            
+            resultDiv.classList.remove('error');
+        }
+
+        // Функция для отображения ошибки
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `⚠️ ${message}`;
+            resultDiv.classList.add('error');
+        }
+
+        // Функция для валидации ввода
+        function validateInputs(price, age) {
+            // Проверка на пустые значения
+            if (price === '' || age === '') {
+                return 'Пожалуйста, заполните все поля!';
+            }
+            
+            // Преобразуем в числа и проверяем на корректность
+            const priceNum = parseFloat(price);
+            const ageNum = parseInt(age);
+            
+            // Проверка на то, что введены корректные числа
+            if (isNaN(priceNum) || isNaN(ageNum)) {
+                return 'Пожалуйста, введите корректные числовые значения!';
+            }
+            
+            // Проверка на отрицательные значения
+            if (priceNum < 0) {
+                return 'Стоимость товара не может быть отрицательной!';
+            }
+            
+            if (ageNum < 0) {
+                return 'Возраст не может быть отрицательным!';
+            }
+            
+            // Проверка на реалистичный возраст (опционально)
+            if (ageNum > 150) {
+                return 'Пожалуйста, введите корректный возраст (до 150 лет)!';
+            }
+            
+            return null; // Нет ошибок
+        }
+
+        // Основная функция обработки расчёта
+        function processCalculation() {
+            // Получаем значения из полей ввода
+            const priceInput = document.getElementById('price').value;
+            const ageInput = document.getElementById('age').value;
+            
+            // Валидация входных данных
+            const validationError = validateInputs(priceInput, ageInput);
+            if (validationError) {
+                showError(validationError);
+                return;
+            }
+            
+            // Преобразуем в числовые значения
+            const price = parseFloat(priceInput);
+            const age = parseInt(ageInput);
+            
+            // Рассчитываем процент скидки
+            const discountPercent = calculateDiscount(age);
+            
+            // Рассчитываем итоговую цену со скидкой
+            const finalPrice = calculateFinalPrice(price, discountPercent);
+            
+            // Отображаем результат
+            displayResult(price, age, finalPrice, discountPercent);
+        }
+
+        // Добавляем обработчик события на кнопку
+        const calculateBtn = document.getElementById('calculateBtn');
+        calculateBtn.addEventListener('click', processCalculation);
+        
+        // Добавляем возможность нажатия Enter в полях ввода
+        const priceField = document.getElementById('price');
+        const ageField = document.getElementById('age');
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                processCalculation();
+            }
+        }
+        
+        priceField.addEventListener('keypress', handleKeyPress);
+        ageField.addEventListener('keypress', handleKeyPress);
+        
+        // Очищаем сообщение об ошибке при фокусе на поле ввода
+        function clearResultOnFocus() {
+            const resultDiv = document.getElementById('result');
+            if (resultDiv.classList.contains('error')) {
+                resultDiv.innerHTML = '';
+                resultDiv.classList.remove('error');
+            }
+        }
+        
+        priceField.addEventListener('focus', clearResultOnFocus);
+        ageField.addEventListener('focus', clearResultOnFocus);
+    </script>
+</body>
+</html>

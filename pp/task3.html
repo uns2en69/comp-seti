@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка номера телефона</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 16px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102,126,234,0.3);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .valid {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .info h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+        .examples {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+        .examples p {
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📱 Проверка номера телефона</h2>
+        
+        <div class="input-group">
+            <label for="phone">Номер телефона</label>
+            <input type="tel" id="phone" placeholder="Например: +79001234567 или 89001234567 или 9001234567">
+        </div>
+        
+        <button id="checkBtn">Проверить номер</button>
+        
+        <div id="result" class="result">
+            <!-- Результат проверки будет отображаться здесь -->
+        </div>
+        
+        <div class="info">
+            <h4>📋 Правила проверки российского номера:</h4>
+            <ul>
+                <li><strong>+7xxxxxxxxx</strong> — плюс, семёрка и 10 цифр (всего 12 символов)</li>
+                <li><strong>8xxxxxxxxx</strong> — восьмёрка и 10 цифр (всего 11 символов)</li>
+                <li><strong>xxxxxxxxxx</strong> — 10 цифр подряд (всего 10 символов)</li>
+            </ul>
+            <div class="examples">
+                <strong>✅ Примеры корректных номеров:</strong>
+                <p>+79001234567 | 89001234567 | 9001234567</p>
+                <strong>❌ Примеры некорректных номеров:</strong>
+                <p>+7(900)123-45-67 | 7-900-123-45-67 | 12345</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Функция для проверки, состоит ли строка только из цифр
+        function isOnlyDigits(str) {
+            if (str.length === 0) return false;
+            for (let i = 0; i < str.length; i++) {
+                if (str[i] < '0' || str[i] > '9') {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Функция для проверки соответствия номеру +7xxxxxxxxx
+        function isFormatPlus7(phoneNumber) {
+            // Должен начинаться с + и иметь общую длину 12 символов
+            if (phoneNumber.length !== 12) return false;
+            if (phoneNumber[0] !== '+') return false;
+            if (phoneNumber[1] !== '7') return false;
+            
+            // Проверяем, что остальные 10 символов - цифры
+            const remaining = phoneNumber.slice(2);
+            return isOnlyDigits(remaining);
+        }
+
+        // Функция для проверки соответствия номеру 8xxxxxxxxx
+        function isFormat8(phoneNumber) {
+            // Должен иметь длину 11 символов и начинаться с 8
+            if (phoneNumber.length !== 11) return false;
+            if (phoneNumber[0] !== '8') return false;
+            
+            // Проверяем, что остальные 10 символов - цифры
+            const remaining = phoneNumber.slice(1);
+            return isOnlyDigits(remaining);
+        }
+
+        // Функция для проверки соответствия номеру xxxxxxxxxx (10 цифр)
+        function isFormat10Digits(phoneNumber) {
+            // Должен иметь длину 10 символов и состоять только из цифр
+            if (phoneNumber.length !== 10) return false;
+            return isOnlyDigits(phoneNumber);
+        }
+
+        // Основная функция проверки номера телефона
+        function validatePhoneNumber(phoneNumber) {
+            // Проверка 1: Номер не пустой
+            if (!phoneNumber || phoneNumber.trim() === '') {
+                return {
+                    isValid: false,
+                    message: '❌ Номер телефона не может быть пустым!'
+                };
+            }
+
+            // Удаляем пробелы в начале и в конце
+            phoneNumber = phoneNumber.trim();
+
+            // Проверка на недопустимые символы (кроме цифр и плюса в начале)
+            // Сначала проверяем, что первый символ если +, то он допустим
+            let hasValidChars = true;
+            let invalidChar = '';
+            
+            for (let i = 0; i < phoneNumber.length; i++) {
+                const char = phoneNumber[i];
+                // Разрешаем цифры или плюс только на первой позиции
+                if (char >= '0' && char <= '9') {
+                    continue; // цифры разрешены всегда
+                }
+                if (i === 0 && char === '+') {
+                    continue; // плюс разрешен только в начале
+                }
+                hasValidChars = false;
+                invalidChar = char;
+                break;
+            }
+            
+            if (!hasValidChars) {
+                return {
+                    isValid: false,
+                    message: `❌ Номер содержит недопустимый символ "${invalidChar}". Разрешены только цифры и знак "+" в начале номера!`
+                };
+            }
+
+            // Проверяем каждый из трёх форматов
+            if (isFormatPlus7(phoneNumber)) {
+                return {
+                    isValid: true,
+                    message: '✅ Номер телефона верный (формат +7xxxxxxxxxx)'
+                };
+            }
+            
+            if (isFormat8(phoneNumber)) {
+                return {
+                    isValid: true,
+                    message: '✅ Номер телефона верный (формат 8xxxxxxxxxx)'
+                };
+            }
+            
+            if (isFormat10Digits(phoneNumber)) {
+                return {
+                    isValid: true,
+                    message: '✅ Номер телефона верный (формат 10 цифр)'
+                };
+            }
+
+            // Если ни один формат не подошел, формируем понятное сообщение об ошибке
+            let errorMessage = '❌ Номер телефона не соответствует ни одному из допустимых форматов.\n\n';
+            
+            // Анализируем длину номера
+            if (phoneNumber[0] === '+') {
+                if (phoneNumber.length !== 12) {
+                    errorMessage += `• Длина номера с "+" должна быть 12 символов, а у вас ${phoneNumber.length} символов.\n`;
+                } else if (phoneNumber[1] !== '7') {
+                    errorMessage += `• После "+" должна быть цифра "7", а у вас "${phoneNumber[1]}".\n`;
+                } else {
+                    errorMessage += `• Номер должен содержать только цифры после "+7".\n`;
+                }
+            } else if (phoneNumber[0] === '8') {
+                if (phoneNumber.length !== 11) {
+                    errorMessage += `• Длина номера, начинающегося с "8", должна быть 11 символов, а у вас ${phoneNumber.length} символов.\n`;
+                } else {
+                    errorMessage += `• Номер должен содержать только цифры после "8".\n`;
+                }
+            } else {
+                // Проверяем, начинается ли с цифры
+                const firstChar = phoneNumber[0];
+                if (firstChar >= '0' && firstChar <= '9') {
+                    if (phoneNumber.length !== 10) {
+                        errorMessage += `• Длина номера без кода должна быть 10 цифр, а у вас ${phoneNumber.length} символов.\n`;
+                    } else {
+                        errorMessage += `• Проверьте, что номер состоит только из цифр (${phoneNumber.length} цифр).\n`;
+                    }
+                } else {
+                    errorMessage += `• Номер должен начинаться с "+", "8" или цифры от 0 до 9.\n`;
+                }
+            }
+            
+            errorMessage += '\n📞 Допустимые форматы:\n';
+            errorMessage += '• +7XXXXXXXXXX (12 символов: +, 7 и 10 цифр)\n';
+            errorMessage += '• 8XXXXXXXXXX (11 символов: 8 и 10 цифр)\n';
+            errorMessage += '• XXXXXXXXXX (10 цифр)';
+            
+            return {
+                isValid: false,
+                message: errorMessage
+            };
+        }
+
+        // Функция для отображения результата
+        function displayResult() {
+            const phoneInput = document.getElementById('phone');
+            const phoneNumber = phoneInput.value;
+            const resultDiv = document.getElementById('result');
+            
+            const validation = validatePhoneNumber(phoneNumber);
+            
+            // Очищаем предыдущие классы
+            resultDiv.classList.remove('valid', 'invalid');
+            
+            if (validation.isValid) {
+                resultDiv.classList.add('valid');
+                resultDiv.innerHTML = validation.message;
+            } else {
+                resultDiv.classList.add('invalid');
+                // Заменяем \n на <br> для корректного отображения многострочных сообщений
+                resultDiv.innerHTML = validation.message.replace(/\n/g, '<br>');
+            }
+        }
+
+        // Функция для очистки результата при фокусе на поле ввода
+        function clearResult() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('valid', 'invalid');
+            resultDiv.innerHTML = '';
+        }
+
+        // Добавляем обработчики событий
+        const checkBtn = document.getElementById('checkBtn');
+        checkBtn.addEventListener('click', displayResult);
+        
+        const phoneInput = document.getElementById('phone');
+        
+        // Очищаем результат при фокусе на поле ввода
+        phoneInput.addEventListener('focus', clearResult);
+        
+        // Добавляем возможность проверки по нажатию Enter
+        phoneInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                displayResult();
+            }
+        });
+
+        // Дополнительная функция для автоматической очистки при вводе
+        // (опционально, для улучшения UX)
+        phoneInput.addEventListener('input', function() {
+            if (document.getElementById('result').innerHTML !== '') {
+                clearResult();
+            }
+        });
+    </script>
+</body>
+</html>
