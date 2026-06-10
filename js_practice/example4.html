@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Приветствие</title>
+</head>
+<body>
+    <input type="text" id="nameInput" placeholder="Введите ваше имя">
+    <button id="greetBtn">Сказать привет</button>
+    <p id="result"></p>
+
+    <script>
+        // Находим элементы
+        let input = document.getElementById('nameInput');
+        let button = document.getElementById('greetBtn');
+        let output = document.getElementById('result');
+
+        // Функция при клике
+        button.onclick = function() {
+            let name = input.value;  // читаем имя
+            
+            if (name === "") {
+                output.innerHTML = "Вы не ввели имя";
+            } else {
+                output.innerHTML = "Привет, " + name + "! Добро пожаловать на сайт";
+            }
+        }
+    </script>
+</body>
+</html>

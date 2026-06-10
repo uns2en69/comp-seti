@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Светофор</title>
+    <style>
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: gray;
+            margin: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="red" class="circle"></div>
+    <div id="yellow" class="circle"></div>
+    <div id="green" class="circle"></div>
+    <br>
+    <button id="btnRed">Красный</button>
+    <button id="btnYellow">Жёлтый</button>
+    <button id="btnGreen">Зелёный</button>
+
+    <script>
+        // получаем круги
+        let redCircle = document.getElementById('red');
+        let yellowCircle = document.getElementById('yellow');
+        let greenCircle = document.getElementById('green');
+
+        // функция сброса всех цветов в серый
+        function resetColors() {
+            redCircle.style.backgroundColor = 'gray';
+            yellowCircle.style.backgroundColor = 'gray';
+            greenCircle.style.backgroundColor = 'gray';
+        }
+
+        // кнопка Красный
+        document.getElementById('btnRed').onclick = function() {
+            resetColors();
+            redCircle.style.backgroundColor = 'red';
+        };
+
+        // кнопка Жёлтый
+        document.getElementById('btnYellow').onclick = function() {
+            resetColors();
+            yellowCircle.style.backgroundColor = 'yellow';
+        };
+
+        // кнопка Зелёный
+        document.getElementById('btnGreen').onclick = function() {
+            resetColors();
+            greenCircle.style.backgroundColor = 'green';
+        };
+    </script>
+</body>
+</html>
